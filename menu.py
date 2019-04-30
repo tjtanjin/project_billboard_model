@@ -12,7 +12,7 @@ from kivy.uix.popup import Popup
 from kivy.core.window import Window
 from data_collection import Scraper
 os.chdir(os.path.realpath(sys.path[0]))
-#from gui_main_test import Coordinator
+stop_thread = "1"
 
 class LoginPage(Screen):
     def __init__(self, **kwargs): 
@@ -61,6 +61,15 @@ class LoginPage(Screen):
         sys.exit()
 
 class UserPage(Screen):
+    def get_state(self):
+        with open("./settings/config.json", "r") as file:
+            settings = json.load(file)
+        if settings["state"] == "0":
+            self.ids["start_button"].text = "Start"
+        else:
+            self.ids["start_button"].text = "View progress"
+        print(threading.active_count())
+
     def logout(self):
         """
         Logout back to main login page.
@@ -99,24 +108,20 @@ class UserPage(Screen):
         self.ids["start_button"].text = "View progress"
 
 class ProgressPage(Screen): 
-    def __init__(self, **kwargs): 
-        super(ProgressPage, self).__init__(**kwargs)
-        self.i = 0
-        self.state = 0
-    def state(self):
-        print(self.state)
-        if self.state == 0:
-            self.track_progress()
-        else:
-            pass
     def track_progress(self):
         """
         Open up the reports directory to show reports.
         Args:
             None
         """
-        if self.i == 0:
+        with open("./settings/config.json", "r") as file:
+            settings = json.load(file)
+        if settings["state"] == "0":
+            settings["state"] = "1"
+            with open("./settings/config.json", "w+") as updatedfile:
+                json.dump(settings, updatedfile)
             self.pb = self.ids["pb"]
+            self.pb_label = self.ids["pb_label"]
             self.scraper = Scraper()
             self.begin = threading.Thread(target=self.scraper.begin)
             self.begin.daemon = True
@@ -124,10 +129,12 @@ class ProgressPage(Screen):
             self.updatelabel = threading.Thread(target=self.progresslabel)
             self.updatelabel.daemon = True
             self.updatelabel.start()
-            self.i += 1
 
     def progresslabel(self):
-        while True:
+        global stop_thread
+        stop_thread = "1"
+        while stop_thread == "1":
+            time.sleep(0.01)
             self.pb.task = self.scraper.task
             self.pb.value = self.scraper.value
             self.pb.max = self.scraper.max
@@ -148,6 +155,19 @@ class ProgressPage(Screen):
         """
         if self.test.is_alive() == False:
             self.ids["start_button"].disabled = False
+
+    def stop_scrape(self):
+        global stop_thread
+        stop_thread = "0"
+        with open("./settings/config.json", "r") as file:
+            settings = json.load(file)
+            settings["state"] = "0"
+        with open("./settings/config.json", "w+") as updatedfile:
+            settings = json.dump(settings, updatedfile)
+        self.begin.join()
+        self.pb_label.text = "Task aborted."
+        self.manager.transition.direction = "right"
+        self.manager.current = "user_page"
 
     def back(self):
         """

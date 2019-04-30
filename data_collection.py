@@ -8,11 +8,13 @@
 
 import pandas as pd
 import numpy as np
-import os, json, logging
+import os, json, logging, threading
 from requests import get, post
 from time import time, sleep
 from random import randint
 from bs4 import BeautifulSoup
+global stop_thread
+stop_thread = "1"
 
 # initialize log settings for error
 logging.basicConfig(filename="error.log", level=logging.INFO)
@@ -75,6 +77,7 @@ class Scraper():
             year: year to extract songs from
             num: number of songs to extract
         """
+        global stop_thread
         # for songs released in specified year, create data frame for songs' basic info
         songs_info = pd.DataFrame(columns=["name", "id", "popularity", "release_date"])
 
@@ -98,9 +101,12 @@ class Scraper():
             
             # track progress
             self.track_progress("Extracting songs", 50, num, i, start_time)
-            
+
             sleep(randint(1,3))
             songs_extracted = i + 50
+
+            if stop_thread == "0":
+                break
 
         print("")
         print("EXTRACTION COMPLETE. Songs extracted: {}; Elapsed Time: {} minutes.".format(songs_extracted, round((time()-start_time)/60, 2)))
@@ -120,6 +126,7 @@ class Scraper():
             songs_info: dataframe containing songs' basic info
         """
         # number of songs to label
+        global stop_thread
         num = len(songs_info["popularity"])
         
         # using cutoff_popularity, classify songs as hit or miss using hit_miss list, then add hit_miss list to DataFrame
@@ -143,6 +150,9 @@ class Scraper():
             self.track_progress("Labeling songs", 1, num, i, start_time)
                 
             songs_labeled = i + 1
+
+            if stop_thread == "0":
+                break
         
         print("")
         print("LABELING COMPLETE. Songs labeled: {}; Elapsed Time: {} minutes.".format(songs_labeled, round((time()-start_time)/60, 2)))
@@ -175,6 +185,7 @@ class Scraper():
             half_analyzed: determines number of pre-analyzed songs if applicable
         """
         # number of songs for audio analysis
+        global stop_thread
         num = len(songs_info["hit_miss"])
         
         # create data frame for songs' audio analysis
@@ -212,6 +223,9 @@ class Scraper():
 
             sleep(randint(1,2))
             songs_analyzed = i + 1
+
+            if stop_thread == "0":
+                break
             
         songs_analysis = pd.read_csv("./temp/{}_temp_audio_analysis.csv".format(year), index_col=0)
 
@@ -235,6 +249,7 @@ class Scraper():
             half_analyzed: determines number of pre-analyzed songs if applicable
         """
         # number of songs for features analysis
+        global stop_thread
         num = len(songs_info["hit_miss"])
         
         # create data frame for songs' audio analysis
@@ -269,9 +284,12 @@ class Scraper():
             with open("./temp/{}_temp_features_analysis.csv".format(year), "a") as file:
                 file.write("{},{},{},{},{},{},{},{}\n".format(half_analyzed+i, r["acousticness"], r["danceability"], r["energy"], r["instrumentalness"], r["liveness"], 
                                                                  r["speechiness"], r["valence"]))
-            
+
             sleep(randint(1,2))
             songs_analyzed = i + 1
+
+            if stop_thread == "0":
+                break
             
         songs_features = pd.read_csv("./temp/{}_temp_features_analysis.csv".format(year), index_col=0)
 
@@ -293,48 +311,54 @@ class Scraper():
             num: number of songs to extract
             resume: list of year(s) to resume audio analysis from, defaults to an empty list
         """
+        global stop_thread
         try:
             # check whether to execute a fresh start or resume for current year
             if year not in resume:
                 print("Obtaining data from {}...".format(year))
-                # obtain data
-                songs_info = self.extract_songs(year, num)
-                # label songs
-                songs_info = self.label_songs(songs_info, year)
-                # audio analyze songs
-                songs_analysis = self.audio_analysis(songs_info, year, half_analyzed=0)
-                # features analyze songs
-                songs_features = self.features_analysis(songs_info, year, half_analyzed=0)
-            else:
-                print("Resuming analysis from {}...".format(year))
-                # read in song list
-                song_list = pd.read_csv("./temp/{}_{}_song_list.csv".format(year, num))
-                # read in half-analyzed audio data
-                half_audio_analyzed_songs = pd.read_csv("./temp/{}_temp_audio_analysis.csv".format(year))
-                songs_info = song_list.iloc[len(half_audio_analyzed_songs):]
-                songs_info = songs_info.reset_index(drop=True)
-                # audio analyze songs
-                songs_analysis = self.audio_analysis(songs_info, year, half_analyzed=len(half_audio_analyzed_songs))
-                if os.path.isfile("./temp/{}_temp_features_analysis.csv".format(year)):
-                    # read in half-analyzed features data
-                    half_features_analyzed_songs = pd.read_csv("./temp/{}_temp_features_analysis.csv".format(year))
-                    songs_info = song_list.iloc[len(half_features_analyzed_songs):]
-                    songs_info = songs_info.reset_index(drop=True)
+                if stop_thread == "1":
+                    # obtain data
+                    songs_info = self.extract_songs(year, num)
+                if stop_thread == "1":
+                    # label songs
+                    songs_info = self.label_songs(songs_info, year)
+                if stop_thread == "1":
+                    # audio analyze songs
+                    songs_analysis = self.audio_analysis(songs_info, year, half_analyzed=0)
+                if stop_thread == "1":
                     # features analyze songs
-                    songs_features = self.features_analysis(songs_info, year, half_analyzed=len(half_features_analyzed_songs))
-                else:
-                    songs_info = song_list
                     songs_features = self.features_analysis(songs_info, year, half_analyzed=0)
-                songs_info = pd.read_csv("./temp/{}_{}_song_list.csv".format(year, num))
+            # else:
+            #     print("Resuming analysis from {}...".format(year))
+            #     # read in song list
+            #     song_list = pd.read_csv("./temp/{}_{}_song_list.csv".format(year, num))
+            #     # read in half-analyzed audio data
+            #     half_audio_analyzed_songs = pd.read_csv("./temp/{}_temp_audio_analysis.csv".format(year))
+            #     songs_info = song_list.iloc[len(half_audio_analyzed_songs):]
+            #     songs_info = songs_info.reset_index(drop=True)
+            #     # audio analyze songs
+            #     songs_analysis = self.audio_analysis(songs_info, year, half_analyzed=len(half_audio_analyzed_songs))
+            #     if os.path.isfile("./temp/{}_temp_features_analysis.csv".format(year)):
+            #         # read in half-analyzed features data
+            #         half_features_analyzed_songs = pd.read_csv("./temp/{}_temp_features_analysis.csv".format(year))
+            #         songs_info = song_list.iloc[len(half_features_analyzed_songs):]
+            #         songs_info = songs_info.reset_index(drop=True)
+            #         # features analyze songs
+            #         songs_features = self.features_analysis(songs_info, year, half_analyzed=len(half_features_analyzed_songs))
+            #     else:
+            #         songs_info = song_list
+            #         songs_features = self.features_analysis(songs_info, year, half_analyzed=0)
+            #     songs_info = pd.read_csv("./temp/{}_{}_song_list.csv".format(year, num))
             # combine all 3 data frames to obtain songs, a dataframe which contains metadata for songs released in specified year.
-            songs = pd.concat([songs_info, songs_analysis, songs_features], axis = 1)
-            # save results to csv file
-            songs.to_csv("./song_features/{}_{}_song_features.csv".format(year, num), index=False)
-            # remove temp files on success
-            if len(songs) != 0:
-                os.remove("./temp/{}_temp_audio_analysis.csv".format(year))
-                os.remove("./temp/{}_temp_features_analysis.csv".format(year))
-                os.remove("./temp/{}_{}_song_list.csv".format(year, num))
+            if stop_thread == "1":
+                songs = pd.concat([songs_info, songs_analysis, songs_features], axis = 1)
+                # save results to csv file
+                songs.to_csv("./song_features/{}_{}_song_features.csv".format(year, num), index=False)
+                # remove temp files on success
+                if len(songs) != 0:
+                    os.remove("./temp/{}_temp_audio_analysis.csv".format(year))
+                    os.remove("./temp/{}_temp_features_analysis.csv".format(year))
+                    os.remove("./temp/{}_{}_song_list.csv".format(year, num))
         except Exception as ex:
             print("")
             print("Error for scraping from year {} with num {} and exception: {}".format(year, num, ex))
@@ -350,6 +374,21 @@ class Scraper():
     # edit the second parameter in the get_data function to input the number of songs to scrape from each year
     # edit the resume list to add or remove years which was half analyzed previously
     def begin(self):
+        threading.Thread(target=self.check_state).start()
+        global stop_thread
+        stop_thread = "1"
         for year in range(2010, 2019):
-            self.get_data(year, 200, resume=[])
+            if stop_thread == "1":
+                self.get_data(year, 200, resume=[])
+            else:
+                return None
+
+    def check_state(self):
+        mtime = os.stat("./settings/config.json").st_mtime
+        cmtime = mtime
+        while cmtime == mtime:
+            sleep(0.01)
+            mtime = os.stat("./settings/config.json").st_mtime
+        global stop_thread
+        stop_thread = "0"
 

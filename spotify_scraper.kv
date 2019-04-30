@@ -88,6 +88,8 @@ ScreenManagement:
             on_release: root.quit()
             font_size: self.height * 0.5
 <UserPage>:
+    on_enter:
+        root.get_state()
     FloatLayout:
         size: root.width, root.height
         center: root.width / 2, root.height / 2
@@ -148,6 +150,7 @@ ScreenManagement:
                     pos: self.pos
                     size: self.size
             Label:
+                id: pb_label
                 text: '{}: {}/{} songs analyzed'.format(pb.task, pb.value, pb.max)
                 size_hint_y: None
                 pos_hint: {'x':0, 'y':0.3}
@@ -171,10 +174,21 @@ ScreenManagement:
                 pos: self.pos
                 size: self.size
         Button:
+            id: stop_button
+            text: "Stop"
+            size_hint: (0.15, 1)
+            pos_hint: {'x':0.325, 'y':0}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: back_button.background_color=1, 1, 1, 1
+            on_release: back_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.stop_scrape()
+            font_size: self.height * 0.5
+        Button:
             id: back_button
             text: "Back"
             size_hint: (0.15, 1)
-            pos_hint: {'x':0.425, 'y':0}
+            pos_hint: {'x':0.525, 'y':0}
             background_normal: ""
             background_color: 0.5, 0.5, 0.5, 1
             on_press: back_button.background_color=1, 1, 1, 1
