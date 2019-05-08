@@ -62,6 +62,11 @@ class LoginPage(Screen):
 
 class UserPage(Screen):
     def get_state(self):
+        """
+        Check state of extraction to determine button to show.
+        Args:
+            None
+        """
         with open("./settings/config.json", "r") as file:
             settings = json.load(file)
         if settings["state"] == "0":
@@ -131,6 +136,11 @@ class ProgressPage(Screen):
             self.updatelabel.start()
 
     def progresslabel(self):
+        """
+        Updates the progress bar continuously.
+        Args:
+            None
+        """
         global stop_thread
         stop_thread = "1"
         while stop_thread == "1":
@@ -157,6 +167,11 @@ class ProgressPage(Screen):
             self.ids["start_button"].disabled = False
 
     def stop_scrape(self):
+        """
+        Aborts the task and update the state upon stop button pressed.
+        Args:
+            None
+        """
         global stop_thread
         stop_thread = "0"
         with open("./settings/config.json", "r") as file:
@@ -185,19 +200,7 @@ class SettingsPage(Screen):
         Args:
             None
         """
-        with open("./config/gui_main_test_config.json") as configurationfile:
-            self.configuration = json.load(configurationfile)
-        for configuration_type in self.configuration.keys():
-            if self.configuration[configuration_type] == "E":
-                self.ids[configuration_type + "_togglebutton"].state = "down"
-                self.ids[configuration_type + "_togglebutton"].text = "Enabled"
-            elif self.configuration[configuration_type] == "D":
-                self.ids[configuration_type + "_togglebutton"].state = "normal"
-                self.ids[configuration_type + "_togglebutton"].text = "Disabled"
-            else:
-                self.ids[configuration_type + "_togglebutton"].state = "normal"
-                self.ids[configuration_type + "_togglebutton"].text = "ERROR"
-        configurationfile.close()
+        pass
 
     def update_button(self, togglebutton):
         """
@@ -216,11 +219,6 @@ class SettingsPage(Screen):
         Args:
             None
         """
-        newconfigurationfile = open("./config/gui_main_test_config.json", "w", encoding="utf-8")
-        newconfiguration = {}
-        for configuration_type in self.configuration.keys():
-            newconfiguration[configuration_type] = self.ids[configuration_type + "_togglebutton"].text[0]
-        json.dump(newconfiguration, newconfigurationfile)
         self.ids["save_message"].opacity = 1
         Clock.schedule_once(self.hidemessage, 1.5)
 
