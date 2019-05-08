@@ -1,0 +1,494 @@
+#:kivy 1.10.1
+
+ScreenManagement:
+    LoginPage:
+        id: login_page
+        name: "login_page"
+    UserPage:
+        id: user_page
+        name: "user_page"
+    ProgressPage:
+        id: progress_page
+        name: "progress_page"
+    SettingsPage:
+        id: settings_page
+        name: "settings_page"
+<LoginPage>:
+    FloatLayout:
+        size: root.width, root.height
+        center: root.width / 2, root.height / 2
+        padding: 10
+        spacing: 10
+        Label:
+            id: m3guitest_label
+            text: 'Spotify Scraper'
+            pos_hint: {'x':0, 'y':0.2}
+            font_size: self.height * 0.1
+        Label:
+            id: username_label
+            text: 'User Name:'
+            pos_hint: {'x':-0.10, 'y':0.05}
+            font_size: self.height * 0.025
+        TextInput:
+            id: username
+            multiline: False
+            focus: True
+            write_tab: False
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.47, 'y':0.525}
+            font_size: root.height * 0.0275
+        Label:
+            id: password_label
+            text: 'Password:'
+            pos_hint: {'x':-0.10, 'y':0}
+            font_size: self.height * 0.025
+        TextInput:
+            id: password
+            multiline: False
+            focus: True
+            write_tab: False
+            password: True
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.47, 'y':0.475}
+            font_size: root.height * 0.0275
+        Label:
+            id: successlogin_message
+            text: "Login successful"
+            color: [0.5,1,0,1]
+            pos_hint: {'x':-0.005, 'y':-0.045}
+            opacity: 0
+            font_size: self.height * 0.025
+        Label:
+            id: errorlogin_message
+            text: "Incorrect username or password."
+            color: [1,0,0,1]
+            pos_hint: {'x':-0.005, 'y':-0.045}
+            opacity: 0
+            font_size: self.height * 0.025
+        Button:
+            id: login_button
+            text: "Login"
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.42, 'y':0.38}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: login_button.background_color=1, 1, 1, 1
+            on_release: login_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.verify_credentials()
+            font_size: self.height * 0.5
+        Button:
+            id: quit_button
+            text: "Quit"
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.42, 'y':0.32}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: quit_button.background_color=1, 1, 1, 1
+            on_release: quit_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.quit()
+            font_size: self.height * 0.5
+<UserPage>:
+    on_enter:
+        root.get_state()
+    FloatLayout:
+        size: root.width, root.height
+        center: root.width / 2, root.height / 2
+        padding: 10
+        spacing: 10
+        Label:
+            id: mainmenu_label
+            text: 'Scraper Menu'
+            pos_hint: {'x':0, 'y':0.2}
+            font_size: self.height * 0.1
+        Button:
+            id: start_button
+            text: "Start"
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.42, 'y':0.56}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: start_button.background_color=1, 1, 1, 1
+            on_release: start_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.start_test()
+            font_size: self.height * 0.5
+        Button:
+            id: settings_button
+            text: "Settings"
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.42, 'y':0.50}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: settings_button.background_color=1, 1, 1, 1
+            on_release: settings_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.settings()
+            font_size: self.height * 0.5
+        Button:
+            id: logout_button
+            text: "Logout"
+            size_hint: (0.15, 0.05)
+            pos_hint: {'x':0.42, 'y':0.44}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: logout_button.background_color=1, 1, 1, 1
+            on_release: logout_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.logout()
+            font_size: self.height * 0.5
+<ProgressPage>:
+    on_enter:
+        root.track_progress()
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        FloatLayout:
+            size_hint: 1, 0.95
+            padding: 10
+            spacing: 10
+            canvas.before:
+                Color:
+                    rgba: 0, 0, 0, 1
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            Label:
+                id: pb_label
+                text: '{}: {}/{} songs analyzed'.format(pb.task, pb.value, pb.max)
+                size_hint_y: None
+                pos_hint: {'x':0, 'y':0.3}
+                height: '48dp'
+            ProgressBar:
+                id: pb
+                task: ""
+                size_hint_x: 0.5
+                size_hint_y: None
+                pos_hint: {'x':0.25, 'y':0.5}
+                height: '48dp'
+                value: 0
+    FloatLayout:
+        size_hint: 1, 0.05
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Button:
+            id: stop_button
+            text: "Stop"
+            size_hint: (0.15, 1)
+            pos_hint: {'x':0.325, 'y':0}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: back_button.background_color=1, 1, 1, 1
+            on_release: back_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.stop_scrape()
+            font_size: self.height * 0.5
+        Button:
+            id: back_button
+            text: "Back"
+            size_hint: (0.15, 1)
+            pos_hint: {'x':0.525, 'y':0}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: back_button.background_color=1, 1, 1, 1
+            on_release: back_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.back()
+            font_size: self.height * 0.5
+<SettingsPage>:
+    on_pre_enter: 
+        root.state()
+    AnchorLayout:
+        anchor_x: 'center'
+        anchor_y: 'top'
+        FloatLayout:
+            size: 1, 0.95
+            padding: 10
+            spacing: 10
+            Label:
+                id: settings_label
+                text: 'Settings'
+                pos_hint: {'x':0, 'y':0.35}
+                font_size: self.height * 0.1
+
+        # ----- First Column -----
+            Button:
+                id: display_browser_label
+                text: 'Display Browser:'
+                size_hint: (0.155, 0.04)
+                pos_hint: {'x':0.0775, 'y':0.70}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: excel_report_label
+                text: 'Generate Excel Report:'
+                size_hint: (0.155, 0.04)
+                pos_hint: {'x':0.0775, 'y':0.64}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: html_report_label
+                text: 'Generate HTML Report:'
+                size_hint: (0.155, 0.04)
+                pos_hint: {'x':0.0775, 'y':0.58}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: open_html_label
+                text: 'Open HTML:'
+                size_hint: (0.155, 0.04)
+                pos_hint: {'x':0.0775, 'y':0.52}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: include_details_label
+                text: 'Include Details:'
+                size_hint: (0.155, 0.04)
+                pos_hint: {'x':0.0775, 'y':0.46}
+                disabled: True
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: display_browser_togglebutton
+                name: "display_browser_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.2275, 'y':0.70}
+                on_press: root.update_button(display_browser_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: excel_report_togglebutton
+                name: "excel_report_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.2275, 'y':0.64}
+                on_press: root.update_button(excel_report_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: html_report_togglebutton
+                name: "html_report_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.2275, 'y':0.58}
+                on_press: root.update_button(html_report_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: open_html_togglebutton
+                name: "open_html_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.2275, 'y':0.52}
+                on_press: root.update_button(open_html_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: include_details_togglebutton
+                name: "include_details_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.2275, 'y':0.46}
+                on_press: root.update_button(include_details_togglebutton.name)
+                font_size: self.height * 0.4
+        # ----- Second Column -----
+            Button:
+                id: loginpage_label
+                text: 'Login Page:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.70}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: maindashboard_label
+                text: 'Main Dashboard:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.64}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: userprofile_label
+                text: 'User Profile:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.58}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: customermanagement_label
+                text: 'Customer Management:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.52}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: usermanagement_label
+                text: 'User Management:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.46}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: featuresconfiguration_label
+                text: 'Features & Configuration:'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.385, 'y':0.40}
+                disabled: True
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: loginpage_togglebutton
+                name: "loginpage_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.70}
+                on_press: root.update_button(loginpage_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: maindashboard_togglebutton
+                name: "maindashboard_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.64}
+                on_press: root.update_button(maindashboard_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: userprofile_togglebutton
+                name: "userprofile_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.58}
+                on_press: root.update_button(userprofile_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: customermanagement_togglebutton
+                name: "customermanagement_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.52}
+                on_press: root.update_button(customermanagement_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: usermanagement_togglebutton
+                name: "usermanagement_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.46}
+                on_press: root.update_button(usermanagement_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: featuresconfiguration_togglebutton
+                name: "featuresconfiguration_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.535, 'y':0.40}
+                on_press: root.update_button(featuresconfiguration_togglebutton.name)
+                font_size: self.height * 0.4
+        # ----- Third Column -----
+            Button:
+                id: ???1_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.70}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: ???2_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.64}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: ???3_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.58}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: ???4_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.52}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: ???5_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.46}
+                disabled: True
+                font_size: self.height * 0.4
+            Button:
+                id: ???6_label
+                text: 'Coming Soon'
+                size_hint: (0.15, 0.04)
+                pos_hint: {'x':0.6925, 'y':0.40}
+                disabled: True
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???1_togglebutton
+                name: "???1_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.70}
+                on_press: root.update_button(loginpage_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???2_togglebutton
+                name: "???2_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.64}
+                on_press: root.update_button(maindashboard_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???3_togglebutton
+                name: "???3_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.58}
+                on_press: root.update_button(userprofile_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???4_togglebutton
+                name: "???4_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.52}
+                on_press: root.update_button(customermanagement_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???5_togglebutton
+                name: "???5_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.46}
+                on_press: root.update_button(usermanagement_togglebutton.name)
+                font_size: self.height * 0.4
+            ToggleButton:
+                id: ???6_togglebutton
+                name: "???6_togglebutton"
+                size_hint: (0.08, 0.04)
+                pos_hint: {'x':0.8425, 'y':0.40}
+                on_press: root.update_button(featuresconfiguration_togglebutton.name)
+                font_size: self.height * 0.4
+            Label:
+                id: save_message
+                text: "Changes saved successfully"
+                color: [0.5,1,0,1]
+                pos_hint: {'x':0, 'y':-0.2}
+                opacity: 0
+                font_size: self.height * 0.025
+    # ----- Others -----
+    FloatLayout:
+        size_hint: 1, 0.05
+        padding: 10
+        spacing: 10
+        canvas.before:
+            Color:
+                rgba: 0.1, 0.1, 0.1, 1
+            Rectangle:
+                pos: self.pos
+                size: self.size
+        Button:
+            id: savechanges_button
+            text: "Save Changes"
+            size_hint: (0.15, 1)
+            pos_hint: {'x':0.325, 'y':0}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: savechanges_button.background_color=1, 1, 1, 1
+            on_release: savechanges_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.save_changes()
+            font_size: self.height * 0.5
+        Button:
+            id: back_button
+            text: "Back"
+            size_hint: (0.15, 1)
+            pos_hint: {'x':0.525, 'y':0}
+            background_normal: ""
+            background_color: 0.5, 0.5, 0.5, 1
+            on_press: back_button.background_color=1, 1, 1, 1
+            on_release: back_button.background_color=0.5, 0.5, 0.5, 1
+            on_release: root.back()
+            font_size: self.height * 0.5
