@@ -1,7 +1,7 @@
 # Project Billboard Model
 Project billboard is one of the projects initiated by UpCode Academy for its students to gain more exposure and experience. The objective of this project is to produce a model that is capable of predicting the potential of a song to be a billboard hit.
 
-Note: This repository contains work strictly pertaining to the training of our prediction models. For the repository that contains our work on the frontend and API, please refer to this link: https://github.com/tjtanjin/project_billboard_api
+Note: The project billboard model repository contains work strictly pertaining to the training of our prediction models. For the repository that contains our work on the frontend and API, please refer to the project billboard api repository: https://github.com/tjtanjin/project_billboard_api
 
 # Timeline
 ### 2nd April 2019
