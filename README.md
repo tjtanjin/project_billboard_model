@@ -100,6 +100,4 @@ $ git clone https://github.com/tjtanjin/project_billboard_model.git
 ### Contributing
 If you have code to contribute to the project, open a pull request and describe clearly the changes and what they are intended to do (enhancement, bug fixes etc). Alternatively, you may simply raise bugs or suggestions by opening an issue.
 ### Others
-If there are any questions pertaining to the application itself, kindly use the chatbot found at the bottom right corner of our application (https://todo-manager.tjtanjin.com).
-
 For any questions regarding the implementation of the project, please drop me an email at: cjtanjin@gmail.com.
